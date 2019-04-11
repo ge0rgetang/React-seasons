@@ -14,13 +14,45 @@ import ReactDOM from 'react-dom'
 // class allows structure, state (user inputs), and lifecycle
 // function is for simple stuff
 class App extends React.Component {
-    render() {
+    // first thing called when object is init, we can init state here
+    constructor(props) {
+        super(props)
+        this.state = { 
+            latitude: null,
+            longitude: null,
+            errorMessage: '' 
+        }
         window.navigator.geolocation.getCurrentPosition(
-            (position) => console.log(position),
-            (err) => console.log(err)
+            (position) => {
+                // DO NOT directly set/change state props, this.state.lat = ..., only first time
+                const newState = { 
+                    latitude: position.coords.latitude,
+                    longitude: position.coords.longitude 
+                }
+                this.setState(newState)
+            },
+            (err) => {
+                const errState = {
+                    errorMessage: err.message
+                }
+                this.setState(errState)
+            }
         )
-    
-      return <div>Latitude: </div>
+    }
+
+    // React says we have to define render
+    render() {
+        if (!this.state.errorMessage) {
+            return (
+                <div>
+                    Latitude: {this.state.latitude || 'Fetching Lat...'}
+                    <br />
+                    Longitude: {this.state.longitude || 'Fetching Long...'}
+                </div>
+            )
+        } else {
+            return <div>Error: {this.state.errorMessage}</div>
+        }
     }
 }
 
