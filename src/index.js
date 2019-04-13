@@ -1,5 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
+import SeasonDisplay from './SeasonDisplay'
+import Spinner from './Spinner'
 
 // const App = () => {
 //     window.navigator.geolocation.getCurrentPosition(
@@ -15,16 +17,24 @@ import ReactDOM from 'react-dom'
 // function is for simple stuff
 class App extends React.Component {
     // first thing called when object is init, we can init state here
-    constructor(props) {
-        super(props)
-        this.state = { 
-            latitude: null,
-            longitude: null,
-            errorMessage: '' 
-        }
+    // constructor(props) {
+    //     super(props)
+    //     this.state = { 
+    //         latitude: null,
+    //         longitude: null,
+    //         errorMessage: '' 
+    //     }
+    // }
+    // alternatively:
+    state = { 
+        latitude: null,
+        longitude: null,
+        errorMessage: '' 
+    }
+
+    componentDidMount() {
         window.navigator.geolocation.getCurrentPosition(
             (position) => {
-                // DO NOT directly set/change state props, this.state.lat = ..., only first time
                 const newState = { 
                     latitude: position.coords.latitude,
                     longitude: position.coords.longitude 
@@ -40,19 +50,35 @@ class App extends React.Component {
         )
     }
 
-    // React says we have to define render
-    render() {
-        if (!this.state.errorMessage) {
+    componentDidUpdate() {
+        console.log('comp did update')
+    }
+
+    // Helper method for render 
+    renderContent() {
+        if (!this.state.errorMessage && this.state.latitude) {
             return (
-                <div>
-                    Latitude: {this.state.latitude || 'Fetching Lat...'}
-                    <br />
-                    Longitude: {this.state.longitude || 'Fetching Long...'}
-                </div>
+                <SeasonDisplay 
+                    latitude={this.state.latitude} 
+                    longitude={this.state.longitude} 
+                />
             )
-        } else {
+        } 
+        
+        if (this.state.errorMessage) {
             return <div>Error: {this.state.errorMessage}</div>
         }
+
+        return <Spinner text="Fetching Location..." />
+    }
+
+    // React says we have to define render
+    render() {
+        return (
+            <div className="border red">
+                {this.renderContent()}
+            </div>
+        )
     }
 }
 
